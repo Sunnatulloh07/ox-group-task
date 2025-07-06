@@ -16,14 +16,12 @@ export class CompaniesService {
 
   async validateOxToken(subdomain: string): Promise<boolean> {
     try {
-      this.logger.log(`Validating OX API access for subdomain: ${subdomain}`);
       
       const oxToken = this.configService.get<string>('OX_API_TOKEN');
       if (!oxToken) {
         throw new BadRequestException('OX API token not configured');
       }
 
-      // Remove Bearer prefix if exists and add it properly
       const cleanToken = oxToken.replace(/^Bearer\s+/, '').trim();
       
       const response = await axios.get(
@@ -33,11 +31,10 @@ export class CompaniesService {
             'Accept': 'application/json',
             'Authorization': `Bearer ${cleanToken}`,
           },
-          timeout: 10000, // 10 soniya timeout
+          timeout: 10000,
         }
       );
 
-      this.logger.log(`OX API validation successful for ${subdomain}`);
       return true;
     } catch (error) {
       this.logger.error(`OX API validation failed: ${error.message}`);
@@ -56,25 +53,20 @@ export class CompaniesService {
   }
 
   async registerCompany(dto: RegisterCompanyDto, userId: number) {
-    // Get OX API token from environment
     const oxToken = this.configService.get<string>('OX_API_TOKEN');
     if (!oxToken) {
       throw new BadRequestException('OX API token not configured');
     }
 
-    // Clean token for storage
     const cleanToken = oxToken.replace(/^Bearer\s+/, '').trim();
 
-    // OX API orqali subdomain'ni validatsiya qilish
     await this.validateOxToken(dto.subdomain);
 
-    // Kompaniya mavjudligini tekshirish
     const existingCompany = await this.prisma.company.findUnique({
       where: { subdomain: dto.subdomain },
     });
 
     if (existingCompany) {
-      // Mavjud kompaniyaga manager sifatida qo'shish
       const existingUserCompany = await this.prisma.userCompany.findUnique({
         where: {
           userId_companyId: {
@@ -105,7 +97,6 @@ export class CompaniesService {
         role: Role.MANAGER,
       };
     } else {
-      // Yangi kompaniya yaratish - transaction ishlatib
       return await this.prisma.$transaction(async (tx) => {
         const newCompany = await tx.company.create({
           data: {
@@ -115,7 +106,6 @@ export class CompaniesService {
           },
         });
 
-        // User'ni bu kompaniyaning admin'i qilish
         await tx.userCompany.create({
           data: {
             userId,
@@ -137,7 +127,6 @@ export class CompaniesService {
   }
 
   async deleteCompany(companyId: number, userId: number) {
-    // Kompaniyani topish
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
       include: {
@@ -149,18 +138,15 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
-    // Faqat admin va kompaniyani yaratgan kishi o'chira olishi
     if (!company.adminId || company.adminId !== userId) {
       throw new ForbiddenException('Only the admin who created this company can delete it');
     }
 
     try {
-      // Kompaniyani o'chirish (Cascade bilan user_companies ham o'chiriladi)
       await this.prisma.company.delete({
         where: { id: companyId },
       });
 
-      this.logger.log(`Company ${companyId} deleted by user ${userId}`);
 
       return {
         message: 'Company deleted successfully',

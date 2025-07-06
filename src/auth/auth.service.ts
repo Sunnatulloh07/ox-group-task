@@ -12,13 +12,11 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto) {
-    // Email format validation qo'shimcha tekshirish
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(dto.email)) {
       throw new UnauthorizedException('Invalid email format');
     }
 
-    // Foydalanuvchini topish yoki yaratish
     let user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -31,21 +29,20 @@ export class AuthService {
       });
     }
 
-    // OTP generatsiya qilish
     const otp = this.generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 daqiqa
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
         otp,
-        otpExpiry,
+        otpExpiry,  
       },
     });
 
     return {
       message: 'OTP sent successfully',
-      otp, // Real production'da buni yubormaslik kerak
+      otp,
     };
   }
 
@@ -65,7 +62,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid OTP or OTP expired');
     }
 
-    // OTP ni tozalash
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -74,7 +70,6 @@ export class AuthService {
       },
     });
 
-    // JWT token yaratish - faqat user ma'lumotlari bilan
     const payload = {
       sub: user.id,
       email: user.email,

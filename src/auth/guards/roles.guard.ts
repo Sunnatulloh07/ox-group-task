@@ -23,7 +23,6 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    // Company-level role check qilish
     const hasRequiredRole = user.companies?.some((company: any) => 
       requiredRoles.includes(company.role)
     ) || false;

@@ -68,7 +68,6 @@ export class ProductsController {
     @Query() dto: GetProductsDto,
     @GetUser('sub') userId: number,
   ) {
-    // User companies'ni service'da olish
     const userCompanies = await this.productsService.getUserCompanies(userId);
     return this.productsService.getProducts(dto, userId, userCompanies);
   }

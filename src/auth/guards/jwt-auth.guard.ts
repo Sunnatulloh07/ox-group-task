@@ -26,7 +26,6 @@ import {
       try {
         const payload = await this.jwtService.verifyAsync(token);
         
-        // Database'dan user ma'lumotlarini olish (fresh data)
         const user = await this.prisma.user.findUnique({
           where: { id: payload.sub },
           include: {

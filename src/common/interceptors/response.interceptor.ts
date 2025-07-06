@@ -23,7 +23,6 @@ import {
   
       return next.handle().pipe(
         map((data) => {
-          // If the service returns an object with message, use it
           if (data && typeof data === 'object' && 'message' in data) {
             return {
               success: true,
@@ -34,7 +33,6 @@ import {
             };
           }
           
-          // Otherwise use default message
           return {
             success: true,
             statusCode: response.statusCode,

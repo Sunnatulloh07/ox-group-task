@@ -14,8 +14,7 @@ export class CompanyAdminGuard implements CanActivate {
     if (!user || !user.sub) {
       throw new ForbiddenException('User not authenticated');
     }
-
-    // Kompaniyani topish va adminId tekshirish
+    
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
     });
@@ -24,7 +23,6 @@ export class CompanyAdminGuard implements CanActivate {
       throw new NotFoundException('Company not found');
     }
 
-    // Faqat kompaniyani yaratgan admin o'chira olishi
     if (company.adminId !== user.sub) {
       throw new ForbiddenException('Only the admin who created this company can perform this action');
     }

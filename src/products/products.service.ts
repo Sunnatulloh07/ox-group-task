@@ -11,12 +11,10 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   async getProducts(dto: GetProductsDto, userId: number, userCompanies: any[]) {
-    // User'ning kompaniyalari borligini tekshirish
     if (!userCompanies || userCompanies.length === 0) {
       throw new BadRequestException('User has no associated companies');
     }
 
-    // Manager yoki Admin role'ni tekshirish
     const hasManagerRole = userCompanies.some(company => 
       company.role === Role.MANAGER || company.role === Role.ADMIN
     );
@@ -25,17 +23,14 @@ export class ProductsService {
       throw new ForbiddenException('Only users with manager or admin role can access products');
     }
 
-    // Qaysi kompaniya uchun products olishni aniqlash
     let selectedCompany;
 
     if (dto.companyId) {
-      // Specific company tanlangan
       selectedCompany = userCompanies.find(company => company.id === dto.companyId);
       if (!selectedCompany) {
         throw new BadRequestException('You do not have access to the specified company');
       }
     } else {
-      // Birinchi manager/admin kompaniyani tanlash
       selectedCompany = userCompanies.find(company => 
         company.role === Role.MANAGER || company.role === Role.ADMIN
       );
@@ -46,9 +41,6 @@ export class ProductsService {
     }
 
     try {
-      this.logger.log(`Fetching products for company ${selectedCompany.subdomain}, page: ${dto.page}, size: ${dto.size}`);
-      
-      // OX API'ga so'rov yuborish
       const response = await axios.get(
         `https://${selectedCompany.subdomain}.ox-sys.com/variations`,
         {
@@ -60,12 +52,11 @@ export class ProductsService {
             page: dto.page,
             size: dto.size,
           },
-          timeout: 15000, // 15 soniya timeout
+          timeout: 15000,
         }
       );
 
-      this.logger.log(`Successfully fetched products from ${selectedCompany.subdomain}`);
-
+    
       return {
         success: true,
         data: response.data,

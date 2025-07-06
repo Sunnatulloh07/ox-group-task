@@ -28,11 +28,10 @@ model Company {
   id        Int      @id @default(autoincrement())
   subdomain String   @unique
   token     String
-  adminId   Int?     // Kompaniyani qo'shgan admin
+  adminId   Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   admin         User?         @relation("CompanyAdmin", fields: [adminId], references: [id])
   userCompanies UserCompany[]
 
@@ -43,9 +42,8 @@ model UserCompany {
   id        Int     @id @default(autoincrement())
   userId    Int
   companyId Int
-  role      Role    // Bu kompaniya ichidagi role
+  role      Role
 
-  // Relations
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
