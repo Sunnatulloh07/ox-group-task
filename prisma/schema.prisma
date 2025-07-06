@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  otp       String?
+  otpExpiry DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userCompanies UserCompany[]
+  ownedCompanies Company[]   @relation("CompanyAdmin")
+
+  @@map("users")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  subdomain String   @unique
+  token     String
+  adminId   Int      // Kompaniyani qo'shgan admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  admin         User          @relation("CompanyAdmin", fields: [adminId], references: [id])
+  userCompanies UserCompany[]
+
+  @@map("companies")
+}
+
+model UserCompany {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  companyId Int
+  role      Role    // Bu kompaniya ichidagi role
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@map("user_companies")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+}
