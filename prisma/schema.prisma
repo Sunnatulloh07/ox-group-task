@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/client"
+  output   = "../generated/client"
 }
 
 datasource db {
@@ -28,12 +28,12 @@ model Company {
   id        Int      @id @default(autoincrement())
   subdomain String   @unique
   token     String
-  adminId   Int      // Kompaniyani qo'shgan admin
+  adminId   Int?     // Kompaniyani qo'shgan admin
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  admin         User          @relation("CompanyAdmin", fields: [adminId], references: [id])
+  admin         User?         @relation("CompanyAdmin", fields: [adminId], references: [id])
   userCompanies UserCompany[]
 
   @@map("companies")

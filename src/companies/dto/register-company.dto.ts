@@ -3,15 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterCompanyDto {
   @ApiProperty({ 
-    example: 'Bearer xyz123token',
-    description: 'OX API Bearer token' 
-  })
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/^Bearer\s+.+/, { message: 'Token must start with "Bearer "' })
-  token: string;
-
-  @ApiProperty({ 
     example: 'demo',
     description: 'Company subdomain for OX API' 
   })

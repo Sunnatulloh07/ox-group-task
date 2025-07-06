@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Body, Param, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Body, Param, UseGuards, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { CompaniesService } from './companies.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
@@ -9,18 +9,45 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 @ApiTags('Companies')
 @Controller()
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 export class CompaniesController {
   constructor(private companiesService: CompaniesService) {}
 
+  @Get('companies')
+  @ApiOperation({ 
+    summary: 'Get user companies',
+    description: 'Get list of companies associated with the current user'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'User companies retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        companies: [
+          {
+            id: 27,
+            subdomain: 'demo',
+            role: 'ADMIN',
+            createdAt: '2025-07-06T17:30:00.000Z'
+          }
+        ]
+      }
+    }
+  })
+  getUserCompanies(@GetUser('sub') userId: number) {
+    return this.companiesService.getUserCompanies(userId);
+  }
+
   @Post('register-company')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ 
     summary: 'Register company with OX API',
     description: 'Register a new company or join existing company using OX API token and subdomain'
   })
   @ApiBody({ type: RegisterCompanyDto })
   @ApiResponse({ 
-    status: 200, 
+    status: 201, 
     description: 'Company registered successfully',
     schema: {
       example: {

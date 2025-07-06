@@ -2462,7 +2462,7 @@ export namespace Prisma {
     id: number
     subdomain: string
     token: string
-    adminId: number
+    adminId: number | null
     createdAt: Date
     updatedAt: Date
     _count: CompanyCountAggregateOutputType | null
@@ -2493,7 +2493,7 @@ export namespace Prisma {
     adminId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
     userCompanies?: boolean | Company$userCompaniesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
@@ -2505,7 +2505,7 @@ export namespace Prisma {
     adminId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
   export type CompanySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2515,7 +2515,7 @@ export namespace Prisma {
     adminId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
   export type CompanySelectScalar = {
@@ -2529,28 +2529,28 @@ export namespace Prisma {
 
   export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subdomain" | "token" | "adminId" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
     userCompanies?: boolean | Company$userCompaniesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
   }
   export type CompanyIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    admin?: boolean | UserDefaultArgs<ExtArgs>
+    admin?: boolean | Company$adminArgs<ExtArgs>
   }
 
   export type $CompanyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Company"
     objects: {
-      admin: Prisma.$UserPayload<ExtArgs>
+      admin: Prisma.$UserPayload<ExtArgs> | null
       userCompanies: Prisma.$UserCompanyPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       subdomain: string
       token: string
-      adminId: number
+      adminId: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["company"]>
@@ -2947,7 +2947,7 @@ export namespace Prisma {
    */
   export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    admin<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    admin<T extends Company$adminArgs<ExtArgs> = {}>(args?: Subset<T, Company$adminArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     userCompanies<T extends Company$userCompaniesArgs<ExtArgs> = {}>(args?: Subset<T, Company$userCompaniesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserCompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3377,6 +3377,25 @@ export namespace Prisma {
      * Limit how many Companies to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Company.admin
+   */
+  export type Company$adminArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -4739,10 +4758,10 @@ export namespace Prisma {
     id?: IntFilter<"Company"> | number
     subdomain?: StringFilter<"Company"> | string
     token?: StringFilter<"Company"> | string
-    adminId?: IntFilter<"Company"> | number
+    adminId?: IntNullableFilter<"Company"> | number | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
-    admin?: XOR<UserScalarRelationFilter, UserWhereInput>
+    admin?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     userCompanies?: UserCompanyListRelationFilter
   }
 
@@ -4750,7 +4769,7 @@ export namespace Prisma {
     id?: SortOrder
     subdomain?: SortOrder
     token?: SortOrder
-    adminId?: SortOrder
+    adminId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     admin?: UserOrderByWithRelationInput
@@ -4764,10 +4783,10 @@ export namespace Prisma {
     OR?: CompanyWhereInput[]
     NOT?: CompanyWhereInput | CompanyWhereInput[]
     token?: StringFilter<"Company"> | string
-    adminId?: IntFilter<"Company"> | number
+    adminId?: IntNullableFilter<"Company"> | number | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
-    admin?: XOR<UserScalarRelationFilter, UserWhereInput>
+    admin?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     userCompanies?: UserCompanyListRelationFilter
   }, "id" | "subdomain">
 
@@ -4775,7 +4794,7 @@ export namespace Prisma {
     id?: SortOrder
     subdomain?: SortOrder
     token?: SortOrder
-    adminId?: SortOrder
+    adminId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
@@ -4792,7 +4811,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Company"> | number
     subdomain?: StringWithAggregatesFilter<"Company"> | string
     token?: StringWithAggregatesFilter<"Company"> | string
-    adminId?: IntWithAggregatesFilter<"Company"> | number
+    adminId?: IntNullableWithAggregatesFilter<"Company"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
   }
@@ -4926,7 +4945,7 @@ export namespace Prisma {
     token: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    admin: UserCreateNestedOneWithoutOwnedCompaniesInput
+    admin?: UserCreateNestedOneWithoutOwnedCompaniesInput
     userCompanies?: UserCompanyCreateNestedManyWithoutCompanyInput
   }
 
@@ -4934,7 +4953,7 @@ export namespace Prisma {
     id?: number
     subdomain: string
     token: string
-    adminId: number
+    adminId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     userCompanies?: UserCompanyUncheckedCreateNestedManyWithoutCompanyInput
@@ -4945,7 +4964,7 @@ export namespace Prisma {
     token?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    admin?: UserUpdateOneRequiredWithoutOwnedCompaniesNestedInput
+    admin?: UserUpdateOneWithoutOwnedCompaniesNestedInput
     userCompanies?: UserCompanyUpdateManyWithoutCompanyNestedInput
   }
 
@@ -4953,7 +4972,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     subdomain?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
-    adminId?: IntFieldUpdateOperationsInput | number
+    adminId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userCompanies?: UserCompanyUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4963,7 +4982,7 @@ export namespace Prisma {
     id?: number
     subdomain: string
     token: string
-    adminId: number
+    adminId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -4979,7 +4998,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     subdomain?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
-    adminId?: IntFieldUpdateOperationsInput | number
+    adminId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5231,9 +5250,20 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type CompanyCountOrderByAggregateInput = {
@@ -5273,11 +5303,32 @@ export namespace Prisma {
     adminId?: SortOrder
   }
 
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type EnumRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
     in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
   }
 
   export type CompanyScalarRelationFilter = {
@@ -5461,10 +5512,12 @@ export namespace Prisma {
     connect?: UserCompanyWhereUniqueInput | UserCompanyWhereUniqueInput[]
   }
 
-  export type UserUpdateOneRequiredWithoutOwnedCompaniesNestedInput = {
+  export type UserUpdateOneWithoutOwnedCompaniesNestedInput = {
     create?: XOR<UserCreateWithoutOwnedCompaniesInput, UserUncheckedCreateWithoutOwnedCompaniesInput>
     connectOrCreate?: UserCreateOrConnectWithoutOwnedCompaniesInput
     upsert?: UserUpsertWithoutOwnedCompaniesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOwnedCompaniesInput, UserUpdateWithoutOwnedCompaniesInput>, UserUncheckedUpdateWithoutOwnedCompaniesInput>
   }
@@ -5481,6 +5534,14 @@ export namespace Prisma {
     update?: UserCompanyUpdateWithWhereUniqueWithoutCompanyInput | UserCompanyUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: UserCompanyUpdateManyWithWhereWithoutCompanyInput | UserCompanyUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: UserCompanyScalarWhereInput | UserCompanyScalarWhereInput[]
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserCompanyUncheckedUpdateManyWithoutCompanyNestedInput = {
@@ -5690,6 +5751,33 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedEnumRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
     in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
@@ -5804,7 +5892,7 @@ export namespace Prisma {
     id?: IntFilter<"Company"> | number
     subdomain?: StringFilter<"Company"> | string
     token?: StringFilter<"Company"> | string
-    adminId?: IntFilter<"Company"> | number
+    adminId?: IntNullableFilter<"Company"> | number | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
   }
@@ -5929,14 +6017,14 @@ export namespace Prisma {
     token: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    admin: UserCreateNestedOneWithoutOwnedCompaniesInput
+    admin?: UserCreateNestedOneWithoutOwnedCompaniesInput
   }
 
   export type CompanyUncheckedCreateWithoutUserCompaniesInput = {
     id?: number
     subdomain: string
     token: string
-    adminId: number
+    adminId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5992,14 +6080,14 @@ export namespace Prisma {
     token?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    admin?: UserUpdateOneRequiredWithoutOwnedCompaniesNestedInput
+    admin?: UserUpdateOneWithoutOwnedCompaniesNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutUserCompaniesInput = {
     id?: IntFieldUpdateOperationsInput | number
     subdomain?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
-    adminId?: IntFieldUpdateOperationsInput | number
+    adminId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

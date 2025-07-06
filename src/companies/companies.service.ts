@@ -1,29 +1,33 @@
-import { Injectable, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterCompanyDto } from './dto/register-company.dto';
-import { Role } from '@/prisma/generated/client';
+import { Role } from '@prisma/client';
 import axios, { AxiosError } from 'axios';
 
 @Injectable()
 export class CompaniesService {
   private readonly logger = new Logger(CompaniesService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
 
-  async registerCompany(dto: RegisterCompanyDto, userId: number) {
-    // Token'dan Bearer qismini olib tashlash
-    const cleanToken = dto.token.replace(/^Bearer\s+/, '').trim();
-    
-    if (!cleanToken) {
-      throw new BadRequestException('Invalid token format');
-    }
-
-    // OX API orqali tokenni validatsiya qilish
+  async validateOxToken(subdomain: string): Promise<boolean> {
     try {
-      this.logger.log(`Validating token for subdomain: ${dto.subdomain}`);
+      this.logger.log(`Validating OX API access for subdomain: ${subdomain}`);
+      
+      const oxToken = this.configService.get<string>('OX_API_TOKEN');
+      if (!oxToken) {
+        throw new BadRequestException('OX API token not configured');
+      }
+
+      // Remove Bearer prefix if exists and add it properly
+      const cleanToken = oxToken.replace(/^Bearer\s+/, '').trim();
       
       const response = await axios.get(
-        `https://${dto.subdomain}.ox-sys.com/profile`,
+        `https://${subdomain}.ox-sys.com/profile`,
         {
           headers: {
             'Accept': 'application/json',
@@ -33,7 +37,8 @@ export class CompaniesService {
         }
       );
 
-      this.logger.log(`OX API validation successful for ${dto.subdomain}`);
+      this.logger.log(`OX API validation successful for ${subdomain}`);
+      return true;
     } catch (error) {
       this.logger.error(`OX API validation failed: ${error.message}`);
       
@@ -46,8 +51,22 @@ export class CompaniesService {
           throw new BadRequestException('OX API request timeout');
         }
       }
-      throw new BadRequestException('Failed to validate token with OX API');
+      throw new BadRequestException('Failed to validate with OX API');
     }
+  }
+
+  async registerCompany(dto: RegisterCompanyDto, userId: number) {
+    // Get OX API token from environment
+    const oxToken = this.configService.get<string>('OX_API_TOKEN');
+    if (!oxToken) {
+      throw new BadRequestException('OX API token not configured');
+    }
+
+    // Clean token for storage
+    const cleanToken = oxToken.replace(/^Bearer\s+/, '').trim();
+
+    // OX API orqali subdomain'ni validatsiya qilish
+    await this.validateOxToken(dto.subdomain);
 
     // Kompaniya mavjudligini tekshirish
     const existingCompany = await this.prisma.company.findUnique({
@@ -86,32 +105,34 @@ export class CompaniesService {
         role: Role.MANAGER,
       };
     } else {
-      // Yangi kompaniya yaratish
-      const newCompany = await this.prisma.company.create({
-        data: {
-          subdomain: dto.subdomain,
-          token: cleanToken,
-          adminId: userId,
-        },
-      });
+      // Yangi kompaniya yaratish - transaction ishlatib
+      return await this.prisma.$transaction(async (tx) => {
+        const newCompany = await tx.company.create({
+          data: {
+            subdomain: dto.subdomain,
+            token: cleanToken,
+            adminId: userId,
+          },
+        });
 
-      // User'ni bu kompaniyaning admin'i qilish
-      await this.prisma.userCompany.create({
-        data: {
-          userId,
-          companyId: newCompany.id,
+        // User'ni bu kompaniyaning admin'i qilish
+        await tx.userCompany.create({
+          data: {
+            userId,
+            companyId: newCompany.id,
+            role: Role.ADMIN,
+          },
+        });
+
+        return {
+          message: 'Company registered successfully and user set as admin',
+          company: {
+            id: newCompany.id,
+            subdomain: newCompany.subdomain,
+          },
           role: Role.ADMIN,
-        },
+        };
       });
-
-      return {
-        message: 'Company registered successfully and user set as admin',
-        company: {
-          id: newCompany.id,
-          subdomain: newCompany.subdomain,
-        },
-        role: Role.ADMIN,
-      };
     }
   }
 
@@ -125,11 +146,11 @@ export class CompaniesService {
     });
 
     if (!company) {
-      throw new BadRequestException('Company not found');
+      throw new NotFoundException('Company not found');
     }
 
     // Faqat admin va kompaniyani yaratgan kishi o'chira olishi
-    if (company.adminId !== userId) {
+    if (!company.adminId || company.adminId !== userId) {
       throw new ForbiddenException('Only the admin who created this company can delete it');
     }
 
@@ -152,5 +173,34 @@ export class CompaniesService {
       this.logger.error(`Failed to delete company ${companyId}: ${error.message}`);
       throw new BadRequestException('Failed to delete company');
     }
+  }
+
+  async getUserCompanies(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userCompanies: {
+          include: {
+            company: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const companies = user.userCompanies.map(uc => ({
+      id: uc.company.id,
+      subdomain: uc.company.subdomain,
+      role: uc.role,
+      createdAt: uc.company.createdAt,
+    }));
+
+    return {
+      success: true,
+      companies,
+    };
   }
 }

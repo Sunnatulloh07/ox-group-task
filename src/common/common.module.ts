@@ -1,9 +1,19 @@
 import { Module } from '@nestjs/common';
-import { CommonService } from './common.service';
-import { CommonController } from './common.controller';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
 
 @Module({
-  controllers: [CommonController],
-  providers: [CommonService],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class CommonModule {}

@@ -1,24 +1,32 @@
-import { Role } from '@/prisma/generated/client';
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Role } from '@prisma/client';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CompanyAdminGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  constructor(private prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const { user } = request;
     const companyId = parseInt(request.params.id);
 
-    if (!user || !user.companies) {
+    if (!user || !user.sub) {
       throw new ForbiddenException('User not authenticated');
     }
 
-    // Faqat shu kompaniyaning admin'i o'chira olishi
-    const isCompanyAdmin = user.companies.some((company: any) => 
-      company.id === companyId && company.role === Role.ADMIN
-    );
+    // Kompaniyani topish va adminId tekshirish
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
 
-    if (!isCompanyAdmin) {
-      throw new ForbiddenException('Only company admin can perform this action');
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    // Faqat kompaniyani yaratgan admin o'chira olishi
+    if (company.adminId !== user.sub) {
+      throw new ForbiddenException('Only the admin who created this company can perform this action');
     }
 
     return true;

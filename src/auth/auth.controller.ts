@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -10,9 +10,10 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ 
     summary: 'User login with email',
-    description: 'Login with email and receive OTP. If user does not exist, it will be created with default manager role.'
+    description: 'Login with email and receive OTP. If user does not exist, it will be created.'
   })
   @ApiBody({ type: LoginDto })
   @ApiResponse({ 
@@ -25,12 +26,13 @@ export class AuthController {
       }
     }
   })
-  @ApiResponse({ status: 400, description: 'Invalid email format' })
+  @ApiResponse({ status: 401, description: 'Invalid email format' })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
   @Post('verify')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ 
     summary: 'Verify OTP and get JWT token',
     description: 'Verify the OTP code and receive JWT access token'
