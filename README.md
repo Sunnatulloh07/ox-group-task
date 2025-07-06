@@ -123,6 +123,12 @@ E2E testlarni ishga tushirishdan oldin:
 export JWT_SECRET="test-jwt-secret-key-for-testing"
 export OX_API_TOKEN="Bearer test-ox-api-token"
 export NODE_ENV="test"
+export DATABASE_URL="postgresql://..."
+export POSTGRES_DB="test-db"
+export POSTGRES_USER="test-user"
+export POSTGRES_PASSWORD="test-password"
+export POSTGRES_PORT="5432"
+export OX_SUBDOMAIN="test-subdomain"
 ```
 
 2. **Database'ni tayyorlang:**
